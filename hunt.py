@@ -1,10 +1,20 @@
 import mechanize
+import ConfigParser
 
-login_url = 'https://login.uj.edu.pl/login'
+# init and read config
+config = ConfigParser.RawConfigParser()
+config.read('config.cfg')
+# setup mechanize browser
 br = mechanize.Browser()
+br.set_handle_robots(False)
 
 def login():
-    return process_request(login_url)
+    process_request(config.get('links', 'login'))
+    br.select_form(nr=0)
+    br['username'] = config.get('credentials', 'username')
+    br['password'] = config.get('credentials', 'password')
+    res = br.submit()
+    print res.get_data()
 
 def process_request(url):
     br.open(url)
