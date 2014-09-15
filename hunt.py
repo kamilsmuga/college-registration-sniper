@@ -1,6 +1,8 @@
 import mechanize
 import ConfigParser
 import logging
+import time
+import optparse
 
 # init and read config
 config = ConfigParser.RawConfigParser()
@@ -23,6 +25,7 @@ def login():
         br['password'] = config.get('credentials', 'password')
     except:
         logging.error("Nie udalo sie otworzyc strony do logowania.")
+        logging.error(br.response().get_data())
         return
 
 def process_request(url):
@@ -43,8 +46,22 @@ def neurobiologia():
         res = br.submit()
     except:
         logging.error("Nie udalo sie otworzyc strony do rejestracji.")
+        logging.error(br.response().get_data())
         return
     if "nie jest teraz otwarta" in res.read():
         logging.info("Chyba sie udalo!")
+        logging.info(br.response().get_data())
     else:
         logging.debug("Jeszcze zamkniete.")
+
+parser = optparse.OptionParser()
+parser.add_option('--sleep', dest='pause')
+(options, args) = parser.parse_args()
+
+if options.pause:
+        login()
+        time.sleep(float(options.pause))
+        neurobiologia()
+else:
+    login()
+    neurobiologia()
